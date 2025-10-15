@@ -212,7 +212,7 @@
     const API_BASE =
       location.hostname === "localhost"
         ? "http://localhost:3000"
-        : "https://smartlink-backend.onrender.com";
+        : "https://smartlink-05of.onrender.com";
 
     let chartInstance = null;
     let showHistory = false;
@@ -229,11 +229,11 @@
       if (!url) return alert("กรุณากรอก URL ก่อน");
       if (!isValidUrl(url)) return alert("URL ไม่ถูกต้อง");
 
-      const res = await fetch(`${API_BASE}/api/shorten`, {
+      const res = await fetch("https://smartlink-05of.onrender.com/api/shorten", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ original_url: url }),
-      });
+    });
 
       const data = await res.json();
       if (data.error) return alert(data.error);

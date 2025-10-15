@@ -208,40 +208,43 @@
   <footer>© 2025 SmartLink — Developed by testdev-apichat</footer>
 
   <script>
-    // ✅ กำหนดค่า API ให้รองรับทั้ง localhost และ Render
-    const API_BASE =
-      
-         "https://smartlink-05of.onrender.com";
+    // ✅ API URL ของ Backend (Render)
+    const API_BASE = "https://smartlink-05of.onrender.com";
 
     let chartInstance = null;
     let showHistory = false;
 
-    // ✅ ตรวจสอบว่าเป็น URL ถูกต้องไหม
+    // ✅ ตรวจสอบความถูกต้องของ URL
     const isValidUrl = (string) => {
       try { new URL(string); return true; }
       catch { return false; }
     };
 
-    // ✅ สร้าง Short URL
+    // ✅ ฟังก์ชันสร้าง Short URL
     async function shorten() {
       const url = document.getElementById("url").value.trim();
       if (!url) return alert("กรุณากรอก URL ก่อน");
       if (!isValidUrl(url)) return alert("URL ไม่ถูกต้อง");
 
-      const res = await fetch("https://smartlink-05of.onrender.com/api/shorten", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ original_url: url }),
-    });
+      try {
+        const res = await fetch(`${API_BASE}/api/shorten`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ original_url: url }),
+        });
 
-      const data = await res.json();
-      if (data.error) return alert(data.error);
+        const data = await res.json();
+        if (data.error) return alert(data.error);
 
-      renderResult(data);
-      loadHistory();
+        renderResult(data);
+        loadHistory();
+      } catch (err) {
+        alert("❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้");
+        console.error(err);
+      }
     }
 
-    // ✅ แสดงผลลัพธ์หลังสร้างลิงก์
+    // ✅ แสดงผลลัพธ์ลิงก์ย่อ
     function renderResult(data) {
       document.getElementById("result").innerHTML = `
         <p><b>สร้างลิงก์ย่อเรียบร้อยแล้ว!</b></p>
@@ -257,19 +260,10 @@
     }
 
     // ✅ ปุ่มแชร์
-    function shareFacebook(url) {
-      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, "_blank");
-    }
-    function shareLine(url) {
-      window.open(`https://line.me/R/msg/text/?${encodeURIComponent(url)}`, "_blank");
-    }
-    function shareTwitter(url) {
-      window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=ลองดูสิ!`, "_blank");
-    }
-    function copyLink(url) {
-      navigator.clipboard.writeText(url);
-      alert("คัดลอกลิงก์แล้ว ✅");
-    }
+    const shareFacebook = (url) => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, "_blank");
+    const shareLine = (url) => window.open(`https://line.me/R/msg/text/?${encodeURIComponent(url)}`, "_blank");
+    const shareTwitter = (url) => window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=ลองดูสิ!`, "_blank");
+    const copyLink = (url) => { navigator.clipboard.writeText(url); alert("คัดลอกลิงก์แล้ว ✅"); };
 
     // ✅ แสดง/ซ่อนประวัติ
     function toggleHistory() {
@@ -282,18 +276,24 @@
 
     // ✅ โหลดประวัติทั้งหมด
     async function loadHistory() {
-      const res = await fetch(`${API_BASE}/api/history`);
-      const data = await res.json();
+      try {
+        const res = await fetch(`${API_BASE}/api/history`);
+        const data = await res.json();
 
-      const totalClicks = data.reduce((sum, i) => sum + i.click_count, 0);
-      document.getElementById("summary-text").innerText =
-        `จำนวนคลิกรวมทั้งหมด ${totalClicks.toLocaleString()} ครั้ง จาก ${data.length} ลิงก์`;
+        const totalClicks = data.reduce((sum, i) => sum + i.click_count, 0);
+        document.getElementById("summary-text").innerText =
+          `จำนวนคลิกรวมทั้งหมด ${totalClicks.toLocaleString()} ครั้ง จาก ${data.length} ลิงก์`;
 
-      renderChart(data);
-      renderHistory(data);
+        renderChart(data);
+        renderHistory(data);
+      } catch (err) {
+        document.getElementById("summary-text").innerText =
+          "⚠️ ไม่สามารถโหลดข้อมูลได้ (Server อาจไม่ตอบสนอง)";
+        console.error(err);
+      }
     }
 
-    // ✅ วาดกราฟ
+    // ✅ แสดงกราฟสถิติ
     function renderChart(data) {
       const ctx = document.getElementById("clickChart").getContext("2d");
       if (chartInstance) chartInstance.destroy();
@@ -335,6 +335,7 @@
       ).join("");
     }
 
+    // ✅ โหลดข้อมูลทันทีเมื่อเปิดหน้า
     window.addEventListener("DOMContentLoaded", loadHistory);
   </script>
 </body>

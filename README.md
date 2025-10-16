@@ -98,14 +98,6 @@ echo. > .env
 - ตรวจสอบ username/password
 - ตรวจสอบ network access ใน MongoDB Atlas
 
-##  สรุปขั้นตอนหลัง git clone
-
-1. **cd backend** - เข้าไปในโฟลเดอร์ backend
-2. **npm install** - ติดตั้ง dependencies
-3. **สร้างไฟล์ .env** - ตั้งค่า environment variables
-4. **ตั้งค่า MongoDB Atlas** - เชื่อมต่อ database
-5. **npm start** - เริ่มเซิร์ฟเวอร์
-6. **เปิด frontend/index.html** - ทดสอบระบบ
 
 ##  คำสั่งที่ต้องรันทั้งหมด
 
